@@ -19,7 +19,6 @@ void init()
 		}
 }
 int dir[4][2] = {0,1,0,-1,-1,0,1,0};
-//判断五个数是否能连在一起
 void dfs_find(int x,int y)
 {
 	for(int i = 0 ; i < 4 ; i++)
@@ -60,7 +59,6 @@ void Solve()
 	}
 }
 
-//创建5个数的组合
 void dfs_creat(int index)
 {
 	if(index == 6)
