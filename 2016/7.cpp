@@ -111,17 +111,21 @@ bool history::compare(vector<int> cmp)
 
 vector<int> numbers;
 vector<history> mem;
+vector<int> tested_tree;
 int times = 0;
 
 void dfs(vector<int>);
 bool test(vector<int>);
+vector<int> test_dfs(vector<int>, vector<int>);
+void test_tree_append(int);
+vector<int> locate(int);
 
 void dfs(vector<int> num)
 {
         int num_size = num.size();
         if (num_size >= 5)
         {
-                for (int i=0; i<num.size(); i++)
+                for (int i=0; i<5; i++)
                 {
                         cout<<num[i]<<" ";
                 }
@@ -155,22 +159,94 @@ void dfs(vector<int> num)
 bool test(vector<int> ans)
 {
         sort(ans.begin(), ans.end());
-        bool find_status = true;
+        bool find_status = false;
         for (vector<history>::iterator i = mem.begin();
                 i < mem.end();
                 i++)
         {
                 if (i->compare(ans))
                 {
-                        find_status = false;
+                        find_status = true;
                         break;
                 }
         }
-        if (find_status == false)
+        if (find_status == true)
         {
                 return false;
         }
+        vector<int> tested_node_alloc;
+        test_dfs(ans, tested_node_alloc);
+        vector<int> tested_tree_alloc;
+        if (tested_tree.size() == ans.size())
+        {
+                tested_tree = tested_tree_alloc;
+                sort(tested_tree.begin(), tested_tree.end());
+                history tmp_history;
+                tmp_history.init(tested_tree);
+                mem.push_back(tmp_history);
+                return true;
+        }
+        else
+        {
+                tested_tree = tested_tree_alloc;
+                return false;
+        }
+}
 
+vector<int> test_dfs(vector<int> ans, vector<int> tested_node)
+{
+        vector<int> field;
+        for (int i=1; i<=12; i++)
+        {
+                field.push_back(i);
+        }
+        Sq sq_field(4, 3);
+        sq_field.change(field);
+        if (tested_node.size() == 0)
+        {
+                tested_node.push_back(ans[0]);
+                test_tree_append(ans[0]);
+        }
+        vector<int> lc = locate(tested_node.back());
+        vector<int> nb = sq_field.get_nb(lc[0], lc[1]);
+        for (vector<int>::iterator i = nb.begin();
+                i < nb.end();
+                i++)
+        {
+                if (find(ans.begin(), ans.end(), *i) != ans.end())
+                {
+                        if (find(tested_node.begin(), tested_node.end(), *i) ==
+                                tested_node.end())
+                        {
+                                tested_node.push_back(*i);
+                                test_tree_append(*i);
+                                test_dfs(ans, tested_node);
+                                tested_node.pop_back();
+                        }
+                }
+        }
+        return ans;
+}
+
+void test_tree_append(int appended_int)
+{
+        if (find(tested_tree.begin(), tested_tree.end(), appended_int) ==
+                tested_tree.end())
+        {
+                tested_tree.push_back(appended_int);
+        }
+}
+
+vector<int> locate(int located_num)
+{
+        vector<int> res;
+        for (int i=0; i<2; i++)
+        {
+                res.push_back(0);
+        }
+        res[1] = (located_num % 4) - 1;
+        res[0] = (located_num - 1) / 4;
+        return res;
 }
 
 int main(int argc, char* argv[])
@@ -184,5 +260,6 @@ int main(int argc, char* argv[])
         vector<int> numbers_alloc;
         dfs(numbers_alloc);
         cout<<"times: "<<times<<endl;
+        cout<<mem.size()<<endl;
         return 0;
 }
